@@ -15,9 +15,16 @@
  */
 package com.typicalbot.ext.command;
 
-import com.typicalbot.command.*;
+import com.typicalbot.command.Command;
+import com.typicalbot.command.CommandArgument;
+import com.typicalbot.command.CommandCategory;
+import com.typicalbot.command.CommandConfiguration;
+import com.typicalbot.command.CommandContext;
+import com.typicalbot.command.CommandPermission;
+import com.typicalbot.nxt.audio.GuildMusicManager;
+import com.typicalbot.nxt.util.AudioUtil;
 
-@CommandConfiguration(category = CommandCategory.MUSIC, aliases = "repeat")
+@CommandConfiguration(category = CommandCategory.MUSIC, aliases = "resume")
 public class ResumeCommand implements Command {
     @Override
     public CommandPermission permission() {
@@ -25,7 +32,15 @@ public class ResumeCommand implements Command {
     }
 
     @Override
-    public void execute(CommandContext commandContext, CommandArgument commandArgument) {
-        //
+    public void execute(CommandContext context, CommandArgument argument) {
+        GuildMusicManager musicManager = AudioUtil.getGuildAudioPlayer(context.getGuild());
+
+        if (musicManager.player.getPlayingTrack() == null) {
+            context.sendMessage("Nothing is currently playing.");
+            return;
+        }
+
+        musicManager.player.setPaused(false);
+        context.sendMessage("Successfully resumed **{0}**", musicManager.player.getPlayingTrack().getInfo().title);
     }
 }

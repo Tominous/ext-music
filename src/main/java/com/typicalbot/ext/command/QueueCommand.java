@@ -15,7 +15,19 @@
  */
 package com.typicalbot.ext.command;
 
-import com.typicalbot.command.*;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.typicalbot.audio.QueuedTrack;
+import com.typicalbot.command.Command;
+import com.typicalbot.command.CommandArgument;
+import com.typicalbot.command.CommandCategory;
+import com.typicalbot.command.CommandConfiguration;
+import com.typicalbot.command.CommandContext;
+import com.typicalbot.command.CommandPermission;
+import com.typicalbot.nxt.audio.GuildMusicManager;
+import com.typicalbot.nxt.util.AudioUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @CommandConfiguration(category = CommandCategory.MUSIC, aliases = "queue")
 public class QueueCommand implements Command {
@@ -25,7 +37,37 @@ public class QueueCommand implements Command {
     }
 
     @Override
-    public void execute(CommandContext commandContext, CommandArgument commandArgument) {
-        //
+    public void execute(CommandContext context, CommandArgument argument) {
+        GuildMusicManager musicManager = AudioUtil.getGuildAudioPlayer(context.getGuild());
+
+        if (musicManager.player.getPlayingTrack() == null) {
+            context.sendMessage("Nothing is currently playing.");
+            return;
+        }
+
+        if (musicManager.scheduler.getQueue().isEmpty()) {
+            context.sendMessage("Nothing is in the queue.");
+            return;
+        }
+
+        AudioTrack track = musicManager.player.getPlayingTrack();
+        List<QueuedTrack> scheduledTracks = new ArrayList<>(musicManager.scheduler.getQueue());
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("**__Currently playing:__ ")
+            .append(track.getInfo().title)
+            .append("** requested by **")
+            .append(context.getJDA().getUserById(track.getUserData(Long.class)).getAsTag())
+            .append("**\n\n");
+
+        scheduledTracks.subList(0, (scheduledTracks.size() >= 10 ? 10 : scheduledTracks.size())).forEach(t -> builder.append("[")
+            .append(AudioUtil.format(t.getTrack().getDuration()))
+            .append("] **")
+            .append(t.getTrack().getInfo().title)
+            .append("** requested by **")
+            .append(context.getJDA().getUserById(t.getUniqueId()).getAsTag())
+            .append("**\n"));
+
+        context.sendMessage(builder.toString());
     }
 }

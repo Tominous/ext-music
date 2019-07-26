@@ -15,7 +15,14 @@
  */
 package com.typicalbot.ext.command;
 
-import com.typicalbot.command.*;
+import com.typicalbot.command.Command;
+import com.typicalbot.command.CommandArgument;
+import com.typicalbot.command.CommandCategory;
+import com.typicalbot.command.CommandConfiguration;
+import com.typicalbot.command.CommandContext;
+import com.typicalbot.command.CommandPermission;
+import com.typicalbot.nxt.audio.GuildMusicManager;
+import com.typicalbot.nxt.util.AudioUtil;
 
 @CommandConfiguration(category = CommandCategory.MUSIC, aliases = "repeat")
 public class RepeatCommand implements Command {
@@ -25,7 +32,15 @@ public class RepeatCommand implements Command {
     }
 
     @Override
-    public void execute(CommandContext commandContext, CommandArgument commandArgument) {
-        //
+    public void execute(CommandContext context, CommandArgument argument) {
+        GuildMusicManager musicManager = AudioUtil.getGuildAudioPlayer(context.getGuild());
+
+        if (musicManager.player.getPlayingTrack() == null) {
+            context.sendMessage("Nothing is currently playing.");
+            return;
+        }
+
+        musicManager.scheduler.repeat(!musicManager.scheduler.isRepeating());
+        context.sendMessage("{0} **{1}**", musicManager.scheduler.isRepeating() ? "Successfully started to repeat" : "Successfully stop repeating", musicManager.player.getPlayingTrack().getInfo().title);
     }
 }
