@@ -15,7 +15,12 @@
  */
 package com.typicalbot.ext.command;
 
-import com.typicalbot.command.*;
+import com.typicalbot.command.Command;
+import com.typicalbot.command.CommandArgument;
+import com.typicalbot.command.CommandCategory;
+import com.typicalbot.command.CommandConfiguration;
+import com.typicalbot.command.CommandContext;
+import com.typicalbot.command.CommandPermission;
 
 @CommandConfiguration(category = CommandCategory.MUSIC, aliases = "unqueue")
 public class UnqueueCommand implements Command {
@@ -25,7 +30,7 @@ public class UnqueueCommand implements Command {
     }
 
     @Override
-    public void execute(CommandContext commandContext, CommandArgument commandArgument) {
-        //
+    public void execute(CommandContext context, CommandArgument argument) {
+        throw new UnsupportedOperationException("This command has not been implemented yet.");
     }
 }
